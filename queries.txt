@@ -1,0 +1,70 @@
+/*query to choose the customer that has spent the most on music for each country*/
+
+WITH tab1 AS
+ ( SELECT c.CustomerId, c.FirstName, c.LastName, c.Country, SUM(i.Total) TotalSpent
+ FROM Customer c 
+ JOIN Invoice i 
+ ON c.CustomerId = i.CustomerId 
+ GROUP BY c.CustomerId ) 
+ 
+SELECT tab1.* 
+FROM tab1 
+ JOIN 
+ ( SELECT CustomerId, FirstName, LastName, Country, MAX(TotalSpent) 
+      AS TotalSpent 
+      FROM tab1 
+      GROUP BY Country ) tab2
+ ON tab1.Country = tab2.Country 
+ WHERE tab1.TotalSpent = tab2.TotalSpent 
+ ORDER BY CustomerId
+  
+  
+  
+ /*query to choose the best customer*/
+select customer.customerid,Customer.FirstName ,sum(invoice.total) purchases
+from customer 
+join invoice 
+on Customer.CustomerId = Invoice.CustomerId
+group by customer.customerid
+order by purchases desc
+limit 10
+ 
+
+ 
+ /* query to retrieve artists who have songs with time more than avg */
+
+with tab1 as (
+select t.TrackId tid, t.name , t.Milliseconds track_time
+from track as t
+where t.Milliseconds > ( select avg(t.Milliseconds) 
+                                                from track t
+											)
+						)
+select  a.name,a.ArtistId,tab1.track_time track_time
+from artist a
+ join album al
+on a.ArtistId = al.ArtistId
+ join tab1
+on al.AlbumId = tab1.tid
+group by a.name
+order by track_time
+
+
+/*  query to choose which rock musician for concert*/
+
+select artist.artistid ,artist.name,count( track.albumid) rock_albums
+from artist
+join album 
+on Artist.ArtistId=Album.ArtistId
+join track
+on album.AlbumId= track.AlbumId
+join genre
+on track.GenreId = Genre.GenreId
+where genre.name ='Rock'
+group by artist.Name
+order by rock_albums desc
+limit 10
+
+
+
+					
